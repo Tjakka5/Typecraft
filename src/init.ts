@@ -1,120 +1,20 @@
 import Mat4 from "classes/mat4";
 import { BlockVertexInfo, newVertex } from "classes/blockVertex";
 import Vec3 from "classes/vec3";
+import Chunk from "classes/chunk";
 
-const image = love.graphics.newArrayImage([
-  "assets/tiles/stone.png",
-  "assets/tiles/wood.png",
-  "assets/tiles/brick_red.png",
-  "assets/tiles/cotton_blue.png",
-  "assets/tiles/cotton_red.png",
-  "assets/tiles/cotton_green.png",
-  "assets/tiles/cotton_tan.png",
-  "assets/tiles/ice.png",
-], {
-  mipmaps: true
-})
-
-type foo = {
-  inVertexData: number;
-}
-
-const byteData = love.data.newByteData(BlockVertexInfo.byteSize * 16);
-const vertices: foo[] = ffi.cast("fm_vertex*", byteData.getPointer());
-
-function setVertex(index: number, x: number, y: number, z: number) {
-  let vertex = vertices[index - 1]
-
-  /*
-  vertex.x = x;
-  vertex.y = y;
-  vertex.z = z;
-*/
-
-  /*
-  vertex.inVertexData = newVertex(x, y, z);
-  print(vertex.inVertexData);
-*/
-
-  vertex.inVertexData = newVertex(x, y, z);
-  print(vertex.inVertexData);
-}
-
-setVertex(0,  0,  0, 6);
-setVertex(1,  1,  0, 6);
-setVertex(2,  0,  1, 6);
-setVertex(3,  1,  1, 6);
-
-/*
-setVertex(4, -4, -3, 6);
-setVertex(5,  4, -3, 6);
-setVertex(6, -4,  3, 6);
-setVertex(7,  4,  3, 6);
-*/
-
-/*
-setVertex(4, newVertex(-10, -10, -10));
-setVertex(5, newVertex( 10, -10, -10));
-setVertex(6, newVertex(-10,  10, -10));
-setVertex(7, newVertex( 10,  10, -10));
-
-setVertex( 8, newVertex( 10, -10, -10));
-setVertex( 9, newVertex( 10, -10, 10));
-setVertex(10, newVertex( 10,  10, -10));
-setVertex(11, newVertex( 10,  10, 10));
-
-setVertex(12, newVertex(-10, -10, -10));
-setVertex(13, newVertex(-10, -10, 10));
-setVertex(14, newVertex(-10,  10, -10));
-setVertex(15, newVertex(-10,  10, 10));
-*/
-/*
-setVertex(4, -10, -10, -50, 0, 0, 1);
-setVertex(5,  10, -10, -50, 1, 0, 1);
-setVertex(6, -10,  10, -50, 0, 1, 1);
-setVertex(7,  10,  10, -50, 1, 1, 1);
-
-setVertex( 8, 50, -10, -10, 0, 0, 3);
-setVertex( 9, 50, -10,  10, 1, 0, 3);
-setVertex(10, 50,  10, -10, 0, 1, 3);
-setVertex(11, 50,  10,  10, 1, 1, 3);
-
-setVertex(12, -50, -10, -10, 0, 0, 4);
-setVertex(13, -50, -10,  10, 1, 0, 4);
-setVertex(14, -50,  10, -10, 0, 1, 4);
-setVertex(15, -50,  10,  10, 1, 1, 4);
-*/
+const chunk = new Chunk(new Vec3(0, 0, 0));
 
 love.graphics.setBackgroundColor(0.5, 0.5, 0.5);
 
-// @ts-ignore
-let mesh = love.graphics.newMesh(BlockVertexInfo.attributesFormat, byteData, "triangles", "dynamic");
-mesh.setTexture(image);
-
-mesh.setVertexMap([
-  1, 2, 3,
-  3, 4, 2,
-
-  5, 6, 7,
-  7, 8, 6,
-
-   9, 10, 11,
-  11, 12, 10,
-
-  13, 14, 15,
-  15, 16, 14, 
-])
-
 const perspectiveMatrix = Mat4.fromPerspective(70, 1280 / 720, 0.01, 1000);
 const viewMatrix = Mat4.identity.clone();
-const chunkPosition = Mat4.identity.clone();
 
 viewMatrix.lookAt(new Vec3(0, 0, 0), new Vec3(20, 0, 30));
 
 const shader = love.graphics.newShader("shaders/arrayImage.glsl");
 shader.send("project_matrix", "column", perspectiveMatrix.shaderFormat());
 shader.send("view_matrix", "column", viewMatrix.shaderFormat());
-//shader.send("chunk_position", "column", chunkPosition.shaderFormat());
 
 const color = love.graphics.newCanvas(1280, 720, {
   format: "rgba8",
@@ -151,7 +51,7 @@ love.draw = () => {
   love.graphics.clear(r, g, b, 1, true, 1);
   
   love.graphics.setShader(shader);
-  love.graphics.draw(mesh);
+  chunk.renderAlphaBit(shader);
   love.graphics.setShader();
   love.graphics.setCanvas();
 

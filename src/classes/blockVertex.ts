@@ -1,26 +1,19 @@
 import { MeshVertexDataType, VertexAttribute } from "love.graphics";
 
 ffi.cdef(`
-  typedef struct {
-    float x, y, z;
-    float u, v, w;
-  } fm_vertex;
+	typedef struct {
+		float inVertexData;
+	} fm_vertex;
 `);
 
-export type BlockVertex = { 
-  x: number;
-  y: number;
-  z: number;
 
-  u: number;
-  v: number;
-  w: number;
+export function newVertex(x: number, y: number, z: number): number {
+	return x | y << 5 | z << 10;
 }
 
 export class BlockVertexInfo {
-  static byteSize = ffi.sizeof("fm_vertex");
-  static attributesFormat: VertexAttribute<MeshVertexDataType>[] = [
-    ["VertexPosition", "float", 3],
-    ["VertexTexCoord", "float", 3],
-  ];
+	static byteSize = ffi.sizeof("fm_vertex");
+	static attributesFormat: VertexAttribute<MeshVertexDataType>[] = [
+		["VertexPosition", "float", 1],
+	];
 }

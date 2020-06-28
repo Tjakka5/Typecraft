@@ -1,6 +1,7 @@
 import Vec3 from "./vec3";
 import { BlockVertexInfo, newVertex } from "./blockVertex";
 import textures from "textures";
+import Block from "./block";
 
 class ChunkMesh {
   byteData: ByteData;
@@ -8,6 +9,8 @@ class ChunkMesh {
   vertexMap: number[];
 
   mesh: Mesh;
+
+  isDirty: boolean = true;
 
   constructor(maxVertexCount: number) {
     this.byteData = love.data.newByteData(BlockVertexInfo.byteSize * maxVertexCount);
@@ -18,6 +21,22 @@ class ChunkMesh {
     this.mesh = love.graphics.newMesh(BlockVertexInfo.attributesFormat, this.byteData, "triangles", "dynamic");
     this.mesh.setVertexMap(this.vertexMap);
     this.mesh.setTexture(textures);
+  }
+
+  clean() {
+    // @ts-ignore
+    this.mesh.setVertices(this.byteData);
+    this.mesh.setVertexMap(this.vertexMap);
+
+    this.isDirty = false;
+  }
+
+  render() {
+    if (this.isDirty) {
+      this.clean();
+    }
+
+    love.graphics.draw(this.mesh);
   }
 }
 
@@ -57,6 +76,10 @@ export default class Chunk {
 
   setVertex(index: number, x: number, y: number, z: number, u: number, v: number, layer: number) {
     this.alphaBitMesh.vertices[index - 1] = newVertex(x, y, z, u, v, layer);
+  }
+
+  addBlock(block: Block) {
+
   }
 
   renderAlphaBit(shader: Shader) {

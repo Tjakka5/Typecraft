@@ -1,5 +1,4 @@
 import Mat4 from "classes/mat4";
-import { BlockVertexInfo, newVertex } from "classes/blockVertex";
 import Vec3 from "classes/vec3";
 import Chunk from "classes/chunk";
 
